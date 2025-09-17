@@ -2,11 +2,6 @@
 
 load test_helper
 
-_setup() {
-  mkdir -p "${BATS_TEST_TMPDIR}/myproject"
-  cd "${BATS_TEST_TMPDIR}/myproject"
-}
-
 @test "fails without arguments" {
   run pyenv-version-file-read
   assert_failure ""

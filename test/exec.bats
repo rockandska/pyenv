@@ -17,7 +17,7 @@ EOF
   echo 2.7 > .python-version
   run -127 pyenv-exec nonexistent
   assert_failure <<EOF
-pyenv: version \`2.7' is not installed (set by $PWD/.python-version)
+pyenv: version \`2.7' is not installed (set by $HOME/.python-version)
 pyenv: nonexistent: command not found
 EOF
 }

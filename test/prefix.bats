@@ -3,8 +3,8 @@
 load test_helper
 
 @test "prefix" {
-  mkdir -p "${BATS_TEST_TMPDIR}/myproject"
-  cd "${BATS_TEST_TMPDIR}/myproject"
+  mkdir -p "${HOME}/myproject"
+  cd "${HOME}/myproject"
   echo "1.2.3" > .python-version
   mkdir -p "${PYENV_ROOT}/versions/1.2.3"
   run pyenv-prefix
@@ -17,32 +17,32 @@ load test_helper
 }
 
 @test "prefix for system" {
-  mkdir -p "${BATS_TEST_TMPDIR}/bin"
-  touch "${BATS_TEST_TMPDIR}/bin/python"
-  chmod +x "${BATS_TEST_TMPDIR}/bin/python"
-  PATH="${BATS_TEST_TMPDIR}/libexec:$PATH" PYENV_VERSION="system" run pyenv-prefix
-  assert_success "$BATS_TEST_TMPDIR"
+  mkdir -p "${HOME}/bin"
+  touch "${HOME}/bin/python"
+  chmod +x "${HOME}/bin/python"
+  PATH="${HOME}/libexec:$PATH" PYENV_VERSION="system" run pyenv-prefix
+  assert_success "$HOME"
 }
 
 #Arch has Python at sbin as well as bin
 @test "prefix for system in sbin" {
-  mkdir -p "${BATS_TEST_TMPDIR}/sbin"
-  touch "${BATS_TEST_TMPDIR}/sbin/python"
-  chmod +x "${BATS_TEST_TMPDIR}/sbin/python"
-  PATH="${BATS_TEST_TMPDIR}/sbin:$PATH" PYENV_VERSION="system" run pyenv-prefix
-  assert_success "$BATS_TEST_TMPDIR"
+  mkdir -p "${HOME}/sbin"
+  touch "${HOME}/sbin/python"
+  chmod +x "${HOME}/sbin/python"
+  PATH="${HOME}/sbin:$PATH" PYENV_VERSION="system" run pyenv-prefix
+  assert_success "$HOME"
 }
 
 @test "prefix for system in /" {
-  mkdir -p "${BATS_TEST_TMPDIR}/libexec"
-  cat >"${BATS_TEST_TMPDIR}/libexec/pyenv-which" <<OUT
+  mkdir -p "${HOME}/libexec"
+  cat >"${HOME}/libexec/pyenv-which" <<OUT
 #!/bin/sh
 echo /bin/python
 OUT
-  chmod +x "${BATS_TEST_TMPDIR}/libexec/pyenv-which"
-  PATH="${BATS_TEST_TMPDIR}/libexec:$PATH" PYENV_VERSION="system" run pyenv-prefix
+  chmod +x "${HOME}/libexec/pyenv-which"
+  PATH="${HOME}/libexec:$PATH" PYENV_VERSION="system" run pyenv-prefix
   assert_success "/"
-  rm -f "${BATS_TEST_TMPDIR}/libexec/pyenv-which"
+  rm -f "${HOME}/libexec/pyenv-which"
 }
 
 @test "prefix for invalid system" {

@@ -2,11 +2,6 @@
 
 load test_helper
 
-_setup() {
-  mkdir -p "${PYENV_ROOT}"
-  cd "$BATS_TEST_TMPDIR"
-}
-
 @test "no version selected" {
   assert [ ! -d "${PYENV_ROOT}/versions" ]
   run pyenv-version
@@ -24,7 +19,7 @@ _setup() {
   PYENV_VERSION="3.3.3" create_exec_version "python" ""
   cat > ".python-version" <<<"3.3.3"
   run pyenv-version
-  assert_success "3.3.3 (set by ${PWD}/.python-version)"
+  assert_success "3.3.3 (set by ${HOME}/.python-version)"
 }
 
 @test "set by global file" {

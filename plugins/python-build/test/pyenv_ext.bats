@@ -3,12 +3,12 @@
 load test_helper
 
 _setup() {
-  export PYTHON_BUILD_CACHE_PATH="$BATS_TEST_TMPDIR/cache"
+  export PYTHON_BUILD_CACHE_PATH="$HOME/cache"
   export MAKE=make
   export MAKE_OPTS="-j 2"
   export CC=cc
   export PYTHON_BUILD_HTTP_CLIENT="curl"
-  export TMP_FIXTURES="$BATS_TEST_TMPDIR/fixtures"
+  export TMP_FIXTURES="$HOME/fixtures"
   mkdir -p "$INSTALL_ROOT"
   stub md5 false
   stub curl false
@@ -99,7 +99,7 @@ run_inline_definition_with_name() {
     shift 1
     ;;
   esac
-  local definition="${BATS_TEST_TMPDIR}/${definition_name}"
+  local definition="${HOME}/${definition_name}"
   cat > "$definition"
   run python-build "$definition" "${1:-$INSTALL_ROOT}"
 }
@@ -117,12 +117,12 @@ run_inline_definition_with_name() {
   stub uname '-s : echo Linux'
   stub uname '-s : echo Linux'
 
-  TMPDIR="$BATS_TEST_TMPDIR" install_tmp_fixture definitions/vanilla-python < /dev/null
+  TMPDIR="$HOME" install_tmp_fixture definitions/vanilla-python < /dev/null
   assert_success
 
   assert_build_log <<OUT
-patch -p0 --force -i $BATS_TEST_TMPDIR/python-patch.XXX
-Python-3.6.2: CPPFLAGS="-I${BATS_TEST_TMPDIR}/install/include" LDFLAGS="-L${BATS_TEST_TMPDIR}/install/lib -Wl,-rpath,${BATS_TEST_TMPDIR}/install/lib"
+patch -p0 --force -i $HOME/python-patch.XXX
+Python-3.6.2: CPPFLAGS="-I${HOME}/install/include" LDFLAGS="-L${HOME}/install/lib -Wl,-rpath,${HOME}/install/lib"
 Python-3.6.2: --prefix=$INSTALL_ROOT --enable-shared --libdir=$INSTALL_ROOT/lib
 make -j 2
 make install
@@ -145,14 +145,14 @@ OUT
 
   stub uname '-s : echo Linux'
 
-  TMPDIR="$BATS_TEST_TMPDIR" install_tmp_fixture definitions/vanilla-python < /dev/null
+  TMPDIR="$HOME" install_tmp_fixture definitions/vanilla-python < /dev/null
   assert_success
 
   assert_build_log <<OUT
 patch: bar
 patch: baz
 patch: foo
-Python-3.6.2: CPPFLAGS="-I${BATS_TEST_TMPDIR}/install/include" LDFLAGS="-L${BATS_TEST_TMPDIR}/install/lib -Wl,-rpath,${BATS_TEST_TMPDIR}/install/lib"
+Python-3.6.2: CPPFLAGS="-I${HOME}/install/include" LDFLAGS="-L${HOME}/install/lib -Wl,-rpath,${HOME}/install/lib"
 Python-3.6.2: --prefix=$INSTALL_ROOT --enable-shared --libdir=$INSTALL_ROOT/lib
 make -j 2
 make install
@@ -172,11 +172,11 @@ OUT
 
   stub uname '-s : echo Darwin'
 
-  PYTHON_MAKE_INSTALL_TARGET="altinstall" TMPDIR="$BATS_TEST_TMPDIR" install_tmp_fixture definitions/vanilla-python < /dev/null
+  PYTHON_MAKE_INSTALL_TARGET="altinstall" TMPDIR="$HOME" install_tmp_fixture definitions/vanilla-python < /dev/null
   assert_success
 
   assert_build_log <<OUT
-Python-3.6.2: CPPFLAGS="-I${BATS_TEST_TMPDIR}/install/include" LDFLAGS="-L${BATS_TEST_TMPDIR}/install/lib -Wl,-rpath,${BATS_TEST_TMPDIR}/install/lib"
+Python-3.6.2: CPPFLAGS="-I${HOME}/install/include" LDFLAGS="-L${HOME}/install/lib -Wl,-rpath,${HOME}/install/lib"
 Python-3.6.2: --prefix=$INSTALL_ROOT --enable-shared --libdir=$INSTALL_ROOT/lib
 make -j 2
 make altinstall
@@ -193,7 +193,7 @@ echo "python \$@" >> "${INSTALL_ROOT}/build.log"
 OUT
   chmod +x "${INSTALL_ROOT}/bin/python"
 
-  PYTHON_MAKE_INSTALL_TARGET="" TMPDIR="$BATS_TEST_TMPDIR" run_inline_definition <<OUT
+  PYTHON_MAKE_INSTALL_TARGET="" TMPDIR="$HOME" run_inline_definition <<OUT
 build_package_ensurepip
 OUT
   assert_success
@@ -211,7 +211,7 @@ echo "python \$@" >> "${INSTALL_ROOT}/build.log"
 OUT
   chmod +x "${INSTALL_ROOT}/bin/python"
 
-  PYTHON_MAKE_INSTALL_TARGET="altinstall" TMPDIR="$BATS_TEST_TMPDIR" run_inline_definition <<OUT
+  PYTHON_MAKE_INSTALL_TARGET="altinstall" TMPDIR="$HOME" run_inline_definition <<OUT
 build_package_ensurepip
 OUT
   assert_success
@@ -232,7 +232,7 @@ OUT
   touch "${INSTALL_ROOT}/bin/python3.4-config"
   chmod +x "${INSTALL_ROOT}/bin/python3.4-config"
 
-  TMPDIR="$BATS_TEST_TMPDIR" run_inline_definition <<OUT
+  TMPDIR="$HOME" run_inline_definition <<OUT
 verify_python python3.4
 OUT
   assert_success
@@ -255,7 +255,7 @@ OUT
   stub uname '-s : echo Darwin'
   stub sw_vers '-productVersion : echo 10.10'
 
-  PYTHON_CONFIGURE_OPTS="--enable-framework" TMPDIR="$BATS_TEST_TMPDIR" run_inline_definition <<OUT
+  PYTHON_CONFIGURE_OPTS="--enable-framework" TMPDIR="$HOME" run_inline_definition <<OUT
 echo "PYTHON_CONFIGURE_OPTS_ARRAY=(\${PYTHON_CONFIGURE_OPTS_ARRAY[@]})"
 echo "PYTHON_CONFIGURE_OPTS=(\${PYTHON_CONFIGURE_OPTS})"
 echo "CONFIGURE_OPTS=(\${CONFIGURE_OPTS})"
@@ -263,7 +263,7 @@ verify_python python3.4
 OUT
   assert_success
   assert_output <<EOS
-PYTHON_CONFIGURE_OPTS_ARRAY=(--libdir=${BATS_TEST_TMPDIR}/install/lib --enable-framework=${BATS_TEST_TMPDIR}/install/Library/Frameworks)
+PYTHON_CONFIGURE_OPTS_ARRAY=(--libdir=${HOME}/install/lib --enable-framework=${HOME}/install/Library/Frameworks)
 PYTHON_CONFIGURE_OPTS=()
 CONFIGURE_OPTS=()
 EOS
@@ -278,14 +278,14 @@ EOS
   stub sw_vers '-productVersion : echo 10.10'
   stub arch "echo x86_64"
 
-  PYTHON_CONFIGURE_OPTS="--enable-universalsdk" TMPDIR="$BATS_TEST_TMPDIR" run_inline_definition <<OUT
+  PYTHON_CONFIGURE_OPTS="--enable-universalsdk" TMPDIR="$HOME" run_inline_definition <<OUT
 echo "PYTHON_CONFIGURE_OPTS_ARRAY=(\${PYTHON_CONFIGURE_OPTS_ARRAY[@]})"
 echo "PYTHON_CONFIGURE_OPTS=(\${PYTHON_CONFIGURE_OPTS})"
 echo "CONFIGURE_OPTS=(\${CONFIGURE_OPTS})"
 OUT
   assert_success
   assert_output <<EOS
-PYTHON_CONFIGURE_OPTS_ARRAY=(--enable-shared --libdir=${BATS_TEST_TMPDIR}/install/lib --enable-universalsdk=/)
+PYTHON_CONFIGURE_OPTS_ARRAY=(--enable-shared --libdir=${HOME}/install/lib --enable-universalsdk=/)
 PYTHON_CONFIGURE_OPTS=()
 CONFIGURE_OPTS=()
 EOS
@@ -297,14 +297,14 @@ EOS
   stub sw_vers '-productVersion : echo 11.7'
   stub arch "echo arm64"
 
-  PYTHON_CONFIGURE_OPTS="--enable-universalsdk" TMPDIR="$BATS_TEST_TMPDIR" run_inline_definition <<OUT
+  PYTHON_CONFIGURE_OPTS="--enable-universalsdk" TMPDIR="$HOME" run_inline_definition <<OUT
 echo "PYTHON_CONFIGURE_OPTS_ARRAY=(\${PYTHON_CONFIGURE_OPTS_ARRAY[@]})"
 echo "PYTHON_CONFIGURE_OPTS=(\${PYTHON_CONFIGURE_OPTS})"
 echo "CONFIGURE_OPTS=(\${CONFIGURE_OPTS})"
 OUT
   assert_success
   assert_output <<EOS
-PYTHON_CONFIGURE_OPTS_ARRAY=(--enable-shared --libdir=${BATS_TEST_TMPDIR}/install/lib --enable-universalsdk=/ --with-universal-archs=universal2)
+PYTHON_CONFIGURE_OPTS_ARRAY=(--enable-shared --libdir=${HOME}/install/lib --enable-universalsdk=/ --with-universal-archs=universal2)
 PYTHON_CONFIGURE_OPTS=()
 CONFIGURE_OPTS=()
 EOS
@@ -315,12 +315,12 @@ EOS
   stub uname '-s : echo Darwin'
   stub sw_vers '-productVersion : echo 11.7'
 
-  PYTHON_CONFIGURE_OPTS="--enable-universalsdk --with-universal-archs=foo" TMPDIR="$BATS_TEST_TMPDIR" run_inline_definition <<OUT
+  PYTHON_CONFIGURE_OPTS="--enable-universalsdk --with-universal-archs=foo" TMPDIR="$HOME" run_inline_definition <<OUT
 echo "PYTHON_CONFIGURE_OPTS_ARRAY=(\${PYTHON_CONFIGURE_OPTS_ARRAY[@]})"
 OUT
   assert_success
   assert_output <<EOS
-PYTHON_CONFIGURE_OPTS_ARRAY=(--enable-shared --libdir=${BATS_TEST_TMPDIR}/install/lib --enable-universalsdk=/)
+PYTHON_CONFIGURE_OPTS_ARRAY=(--enable-shared --libdir=${HOME}/install/lib --enable-universalsdk=/)
 EOS
 }
 
@@ -333,11 +333,11 @@ EOS
     " : echo \"$MAKE \$@\" >> build.log" \
     " : echo \"$MAKE \$@\" >> build.log && cat build.log >> '$INSTALL_ROOT/build.log'"
 
-  PYTHON_CONFIGURE_OPTS="--enable-unicode=ucs2" TMPDIR="$BATS_TEST_TMPDIR" install_tmp_fixture definitions/vanilla-python < /dev/null
+  PYTHON_CONFIGURE_OPTS="--enable-unicode=ucs2" TMPDIR="$HOME" install_tmp_fixture definitions/vanilla-python < /dev/null
   assert_success
 
   assert_build_log <<OUT
-Python-3.6.2: CPPFLAGS="-I${BATS_TEST_TMPDIR}/install/include" LDFLAGS="-L${BATS_TEST_TMPDIR}/install/lib -Wl,-rpath,${BATS_TEST_TMPDIR}/install/lib"
+Python-3.6.2: CPPFLAGS="-I${HOME}/install/include" LDFLAGS="-L${HOME}/install/lib -Wl,-rpath,${HOME}/install/lib"
 Python-3.6.2: --prefix=$INSTALL_ROOT --enable-shared --libdir=$INSTALL_ROOT/lib --enable-unicode=ucs2
 make -j 2
 make install
@@ -352,7 +352,7 @@ OUT
   stub uname '-s : echo Darwin'
   stub sw_vers '-productVersion : echo 10.10'
 
-  TMPDIR="$BATS_TEST_TMPDIR" run_inline_definition <<OUT
+  TMPDIR="$HOME" run_inline_definition <<OUT
 echo "\${MACOSX_DEPLOYMENT_TARGET}"
 OUT
   assert_success
@@ -365,7 +365,7 @@ OUT
 
   stub uname '-s : echo Darwin'
 
-  MACOSX_DEPLOYMENT_TARGET="10.4" TMPDIR="$BATS_TEST_TMPDIR" run_inline_definition <<OUT
+  MACOSX_DEPLOYMENT_TARGET="10.4" TMPDIR="$HOME" run_inline_definition <<OUT
 echo "\${MACOSX_DEPLOYMENT_TARGET}"
 OUT
   assert_success

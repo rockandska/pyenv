@@ -2,11 +2,6 @@
 
 load test_helper
 
-_setup() {
-  mkdir -p "${BATS_TEST_TMPDIR}"
-  cd "$BATS_TEST_TMPDIR"
-}
-
 @test "reports global file even if it doesn't exist" {
   assert [ ! -e "${PYENV_ROOT}/version" ]
   run pyenv-version-origin
@@ -28,7 +23,7 @@ _setup() {
 @test "detects local file" {
   echo "system" > .python-version
   run pyenv-version-origin
-  assert_success "${PWD}/.python-version"
+  assert_success "${HOME}/.python-version"
 }
 
 @test "reports from hook" {

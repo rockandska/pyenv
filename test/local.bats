@@ -3,12 +3,12 @@
 load test_helper
 
 _setup() {
-  mkdir -p "${BATS_TEST_TMPDIR}/myproject"
-  cd "${BATS_TEST_TMPDIR}/myproject"
+  mkdir -p "${HOME}/myproject"
+  cd "${HOME}/myproject"
 }
 
 @test "no version" {
-  assert [ ! -e "${PWD}/.python-version" ]
+  assert [ ! -e "${HOME}/.python-version" ]
   run pyenv-local
   assert_failure "pyenv: no local version configured for this directory"
 }
@@ -26,9 +26,8 @@ _setup() {
   assert_success "1.2.3"
 }
 
-@test "ignores PYENV_DIR" {
+@test "ignores with PYENV_DIR" {
   echo "1.2.3" > .python-version
-  mkdir -p "$HOME"
   echo "3.4-home" > "${HOME}/.python-version"
   PYENV_DIR="$HOME" run pyenv-local
   assert_success "1.2.3"

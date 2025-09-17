@@ -7,11 +7,6 @@ create_alias() {
   ln -s "$2" "${PYENV_ROOT}/versions/$1"
 }
 
-_setup() {
-  mkdir -p "$BATS_TEST_TMPDIR"
-  cd "$BATS_TEST_TMPDIR"
-}
-
 @test "no versions installed" {
   create_exec python ""
   assert [ ! -d "${PYENV_ROOT}/versions" ]
@@ -130,7 +125,7 @@ OUT
   assert_success
   assert_output <<OUT
   system
-* 3.3.3 (set by ${BATS_TEST_TMPDIR}/.python-version)
+* 3.3.3 (set by ${HOME}/.python-version)
   3.4.0
 OUT
 }
@@ -159,7 +154,7 @@ OUT
   PYENV_VERSION="1.8.7" create_exec_version "python" ""
   create_alias "1.8" "1.8.7"
   mkdir moo
-  create_alias "1.9" "${PWD}/moo"
+  create_alias "1.9" "${HOME}/moo"
 
   run pyenv-versions --bare --skip-aliases
   assert_success

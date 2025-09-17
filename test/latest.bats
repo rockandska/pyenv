@@ -2,10 +2,6 @@
 
 load test_helper
 
-_setup() {
-  export PATH="${BATS_TEST_TMPDIR}/bin:$PATH"
-}
-
 @test "read from installed" {
   create_exec pyenv-versions <<!
 #!$BASH

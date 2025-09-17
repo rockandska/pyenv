@@ -2,11 +2,6 @@
 
 load test_helper
 
-_setup() {
-  mkdir -p "${BATS_TEST_TMPDIR}"
-  cd "$BATS_TEST_TMPDIR"
-}
-
 @test "no version selected" {
   assert [ ! -d "${PYENV_ROOT}/versions" ]
   run pyenv-version-name

@@ -2,11 +2,6 @@
 
 load test_helper
 
-_setup() {
-  mkdir -p "${BATS_TEST_TMPDIR}"
-  cd "$BATS_TEST_TMPDIR"
-}
-
 @test "invocation without 2 arguments prints usage" {
   run pyenv-version-file-write
   assert_failure "Usage: pyenv version-file-write [-f|--force] <file> <version> [...]"
@@ -31,7 +26,7 @@ _setup() {
 @test "writes value to arbitrary file" {
   mkdir -p "${PYENV_ROOT}/versions/2.7.6"
   assert [ ! -e "my-version" ]
-  run pyenv-version-file-write "${PWD}/my-version" "2.7.6"
+  run pyenv-version-file-write "${HOME}/my-version" "2.7.6"
   assert_success ""
   assert [ "$(cat my-version)" = "2.7.6" ]
 }

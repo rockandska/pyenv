@@ -36,6 +36,8 @@ setup() {
   for xdg_var in `env 2>/dev/null | grep ^XDG_ | cut -d= -f1`; do unset "$xdg_var"; done
   unset xdg_var
 
+  cd $HOME
+
   # If test specific setup exist, run it
   if [[ $(type -t _setup) == function ]];then
     _setup
@@ -46,7 +48,7 @@ flunk() {
   { if [ "$#" -eq 0 ]; then cat -
     else echo "$@"
     fi
-  } | sed "s:${HOME}:TEST_DIR:g" >&2
+  } | sed "s:${PYENV_ROOT}:PYENV_ROOT:g;s:${HOME}:HOME_DIR:g;" >&2
   return 1
 }
 

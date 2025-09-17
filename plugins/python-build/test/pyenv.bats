@@ -3,13 +3,13 @@
 load test_helper
 
 _setup() {
-  export PYENV_ROOT="${BATS_TEST_TMPDIR}/pyenv"
+  export PYENV_ROOT="${HOME}"
   stub pyenv-hooks 'install : true'
   stub pyenv-rehash true
 }
 
 stub_python_build_lib() {
-  stub python-build "--lib : $BATS_TEST_DIRNAME/../bin/python-build --lib" "$@"
+  stub python-build "--lib : ${PYENV_ROOT}/plugins/python-build/bin/python-build --lib" "$@"
 }
 
 stub_python_build_no_latest() {
@@ -39,8 +39,8 @@ stub_python_build() {
   run pyenv-install 3.4.1 3.4.2
   assert_success
   assert_output <<OUT
-python-build 3.4.1 ${BATS_TEST_TMPDIR}/pyenv/versions/3.4.1
-python-build 3.4.2 ${BATS_TEST_TMPDIR}/pyenv/versions/3.4.2
+python-build 3.4.1 ${PYENV_ROOT}/versions/3.4.1
+python-build 3.4.2 ${PYENV_ROOT}/versions/3.4.2
 OUT
 
   unstub python-build
@@ -54,7 +54,7 @@ OUT
   run pyenv-install 3.4.1 3.4.2
   assert_failure
   assert_output <<OUT
-fail: python-build 3.4.1 ${BATS_TEST_TMPDIR}/pyenv/versions/3.4.1
+fail: python-build 3.4.1 ${PYENV_ROOT}/versions/3.4.1
 OUT
 
   unstub python-build
@@ -135,6 +135,7 @@ OUT
 }
 
 @test "upgrade instructions given for a nonexistent version" {
+  mkdir ${PYENV_ROOT}/.git
   stub brew false
   stub_python_build_lib
   stub_python_build 'echo ERROR >&2 && exit 2'
@@ -153,7 +154,7 @@ See all available versions with \`pyenv install --list'.
 
 If the version you need is missing, try upgrading pyenv:
 
-  cd ${BATS_TEST_DIRNAME}/../../.. && git pull && cd -
+  cd ${PYENV_ROOT} && git pull && cd -
 OUT
 
   unstub python-build

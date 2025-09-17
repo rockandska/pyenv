@@ -257,6 +257,7 @@ for DEFINITION in "${DEFINITIONS[@]}"; do
   if [ "$STATUS" == "2" ]; then
     { candidates="$(definitions "$DEFINITION")"
       here="$(dirname "${0%/*}")/../.."
+      echo $here >> /tmp/log
       if [ -n "$candidates" ]; then
         echo
         echo "The following versions contain \`$DEFINITION' in the name:"
