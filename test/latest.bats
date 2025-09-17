@@ -3,7 +3,7 @@
 load test_helper
 
 _setup() {
-  export PATH="${PYENV_TEST_DIR}/bin:$PATH"
+  export PATH="${BATS_TEST_TMPDIR}/bin:$PATH"
 }
 
 @test "read from installed" {

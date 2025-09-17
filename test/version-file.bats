@@ -3,8 +3,8 @@
 load test_helper
 
 _setup() {
-  mkdir -p "${PYENV_TEST_DIR}"
-  cd "$PYENV_TEST_DIR"
+  mkdir -p "${BATS_TEST_TMPDIR}"
+  cd "$BATS_TEST_TMPDIR"
 }
 
 create_file() {
@@ -28,7 +28,7 @@ create_file() {
 @test "in current directory" {
   create_file ".python-version"
   run pyenv-version-file
-  assert_success "${PYENV_TEST_DIR}/.python-version"
+  assert_success "${BATS_TEST_TMPDIR}/.python-version"
 }
 
 @test "in parent directory" {
@@ -36,7 +36,7 @@ create_file() {
   mkdir -p project
   cd project
   run pyenv-version-file
-  assert_success "${PYENV_TEST_DIR}/.python-version"
+  assert_success "${BATS_TEST_TMPDIR}/.python-version"
 }
 
 @test "topmost file has precedence" {
@@ -44,29 +44,29 @@ create_file() {
   create_file "project/.python-version"
   cd project
   run pyenv-version-file
-  assert_success "${PYENV_TEST_DIR}/project/.python-version"
+  assert_success "${BATS_TEST_TMPDIR}/project/.python-version"
 }
 
 @test "PYENV_DIR has precedence over PWD" {
   create_file "widget/.python-version"
   create_file "project/.python-version"
   cd project
-  PYENV_DIR="${PYENV_TEST_DIR}/widget" run pyenv-version-file
-  assert_success "${PYENV_TEST_DIR}/widget/.python-version"
+  PYENV_DIR="${BATS_TEST_TMPDIR}/widget" run pyenv-version-file
+  assert_success "${BATS_TEST_TMPDIR}/widget/.python-version"
 }
 
 @test "PWD is searched if PYENV_DIR yields no results" {
   mkdir -p "widget/blank"
   create_file "project/.python-version"
   cd project
-  PYENV_DIR="${PYENV_TEST_DIR}/widget/blank" run pyenv-version-file
-  assert_success "${PYENV_TEST_DIR}/project/.python-version"
+  PYENV_DIR="${BATS_TEST_TMPDIR}/widget/blank" run pyenv-version-file
+  assert_success "${BATS_TEST_TMPDIR}/project/.python-version"
 }
 
 @test "finds version file in target directory" {
   create_file "project/.python-version"
   run pyenv-version-file "${PWD}/project"
-  assert_success "${PYENV_TEST_DIR}/project/.python-version"
+  assert_success "${BATS_TEST_TMPDIR}/project/.python-version"
 }
 
 @test "fails when no version file in target directory" {

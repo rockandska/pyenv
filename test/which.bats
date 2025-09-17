@@ -18,10 +18,10 @@ load test_helper
 
 @test "searches PATH for system version" {
   create_exec "kill-all-humans" ""
-  DEST="${PYENV_TEST_DIR}/bin" create_exec "kill-all-humans" ""
+  DEST="${HOME}/bin" create_exec "kill-all-humans" ""
 
   PYENV_VERSION=system run pyenv-which kill-all-humans
-  assert_success "${PYENV_TEST_DIR}/bin/kill-all-humans"
+  assert_success "${HOME}/bin/kill-all-humans"
 }
 
 @test "searches PATH for system version (shims prepended)" {
@@ -29,7 +29,7 @@ load test_helper
   DEST="${PYENV_ROOT}/shims" create_exec "kill-all-humans" ""
 
   PATH="${PYENV_ROOT}/shims:$PATH" PYENV_VERSION=system run pyenv-which kill-all-humans
-  assert_success "${PYENV_TEST_DIR}/bin/kill-all-humans"
+  assert_success "${HOME}/bin/kill-all-humans"
 }
 
 @test "searches PATH for system version (shims appended)" {
@@ -37,7 +37,7 @@ load test_helper
   DEST="${PYENV_ROOT}/shims" create_exec "kill-all-humans" ""
 
   PATH="$PATH:${PYENV_ROOT}/shims" PYENV_VERSION=system run pyenv-which kill-all-humans
-  assert_success "${PYENV_TEST_DIR}/bin/kill-all-humans"
+  assert_success "${HOME}/bin/kill-all-humans"
 }
 
 @test "searches PATH for system version (shims spread)" {
@@ -46,13 +46,13 @@ load test_helper
 
   PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/shims:/tmp/non-existent:$PATH:${PYENV_ROOT}/shims" \
     PYENV_VERSION=system run pyenv-which kill-all-humans
-  assert_success "${PYENV_TEST_DIR}/bin/kill-all-humans"
+  assert_success "${HOME}/bin/kill-all-humans"
 }
 
 @test "doesn't include current directory in PATH search" {
   bats_require_minimum_version 1.5.0
-  mkdir -p "$PYENV_TEST_DIR"
-  cd "$PYENV_TEST_DIR"
+  mkdir -p "$HOME"
+  cd "$HOME"
   touch kill-all-humans
   chmod +x kill-all-humans
   PATH="$(path_without "kill-all-humans")" PYENV_VERSION=system run -127 pyenv-which kill-all-humans
@@ -143,8 +143,8 @@ SH
   cat > "${PYENV_ROOT}/version" <<<"3.4"
   PYENV_VERSION="3.4" create_exec_version "python" ""
 
-  mkdir -p "$PYENV_TEST_DIR"
-  cd "$PYENV_TEST_DIR"
+  mkdir -p "$HOME"
+  cd "$HOME"
 
   PYENV_VERSION= run pyenv-which python
   assert_success "${PYENV_ROOT}/versions/3.4/bin/python"
@@ -158,8 +158,8 @@ SH
 EOF
   PYENV_VERSION="3.4" create_exec_version "python" ""
 
-  mkdir -p "$PYENV_TEST_DIR"
-  cd "$PYENV_TEST_DIR"
+  mkdir -p "$HOME"
+  cd "$HOME"
 
   PYENV_VERSION= run pyenv-which python
   assert_success "${PYENV_ROOT}/versions/3.4/bin/python"
@@ -173,10 +173,10 @@ EOF
 }
 
 @test "hooks get resolved version name" {
-  create_hook which echo.bash <<!
+  create_hook which echo.bash <<SH
 echo version=\$version
 exit
-!
+SH
 
   PYENV_VERSION="3.4.2" create_exec_version "python" ""
 

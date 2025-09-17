@@ -17,16 +17,20 @@ setup() {
 
   # update BATS_TEST_TMPDIR discover by realpath/readlink to avoid "//"
   export BATS_TEST_TMPDIR="${bats_test_tmpdir}"
-  export PYENV_TEST_DIR="${BATS_TEST_TMPDIR}/pyenv"
-  export PYENV_ROOT="${PYENV_TEST_DIR}/root"
-  export HOME="${PYENV_TEST_DIR}/home"
+  export HOME="${BATS_TEST_TMPDIR}"
+  export PYENV_ROOT="${HOME}/.pyenv"
   export PYENV_HOOK_PATH="${PYENV_ROOT}/pyenv.d"
 
+  # Copy src files to PYENV_ROOT
+  mkdir -p "$PYENV_ROOT"
+  cp -r ${BATS_TEST_DIRNAME}/../{bin,completions,libexec,man,plugins,pyenv.d,src} $PYENV_ROOT
+  cp -r ${BATS_TEST_DIRNAME}/../test/libexec $PYENV_ROOT
+
   PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
-  PATH="${PYENV_TEST_DIR}/bin:$PATH"
-  PATH="${BATS_TEST_DIRNAME%/*}/libexec:$PATH"
-  PATH="${BATS_TEST_DIRNAME}/libexec:$PATH"
+  PATH="${PYENV_ROOT}/libexec:$PATH"
   PATH="${PYENV_ROOT}/shims:$PATH"
+  PATH="${PYENV_ROOT}/bin:$PATH"
+  PATH="${HOME}/bin:$PATH"
   export PATH
 
   for xdg_var in `env 2>/dev/null | grep ^XDG_ | cut -d= -f1`; do unset "$xdg_var"; done
@@ -42,7 +46,7 @@ flunk() {
   { if [ "$#" -eq 0 ]; then cat -
     else echo "$@"
     fi
-  } | sed "s:${PYENV_TEST_DIR}:TEST_DIR:g" >&2
+  } | sed "s:${HOME}:TEST_DIR:g" >&2
   return 1
 }
 
@@ -192,7 +196,7 @@ create_exec() {
   # SH
   ###
   local name="${1?Missing executable name to create with 'create_exec'}"
-  : ${DEST:=${PYENV_TEST_DIR}/bin}
+  : ${DEST:=${HOME}/bin}
   shift 1
   local bin="${DEST}"
   unset DEST

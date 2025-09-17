@@ -14,8 +14,6 @@ EOF
 
 @test "fails with invalid version set from file" {
   bats_require_minimum_version 1.5.0
-  mkdir -p "$PYENV_TEST_DIR"
-  cd "$PYENV_TEST_DIR"
   echo 2.7 > .python-version
   run -127 pyenv-exec nonexistent
   assert_failure <<EOF
@@ -92,19 +90,19 @@ SH
 }
 
 @test 'PATH is not modified with system Python' {
-  export PATH="${PYENV_TEST_DIR}:${PATH}"
+  export PATH="${HOME}:${PATH}"
   # Create a wrapper executable that verifies PATH.
   PYENV_VERSION="custom"
-  create_exec "python3" '[[ "$PATH" == "${PYENV_TEST_DIR}/root/versions/custom/bin:"* ]] || { echo "unexpected:$PATH"; exit 2;}'
+  create_exec "python3" '[[ "$PATH" == "${HOME}/root/versions/custom/bin:"* ]] || { echo "unexpected:$PATH"; exit 2;}'
   unset PYENV_VERSION
   pyenv-rehash
 
   # Path is not modified with system Python.
-  cat > "${PYENV_TEST_DIR}/python3" <<SH
+  cat > "${HOME}/python3" <<SH
 #!$BASH
 echo \$PATH
 SH
-  chmod +x "${PYENV_TEST_DIR}/python3"
+  chmod +x "${HOME}/python3"
   pyenv-rehash
   run pyenv-exec python3
   assert_success "$PATH"

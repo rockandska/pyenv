@@ -38,7 +38,7 @@ Under the hood, `pyenv` test suites use `bats` as a test framework and are run o
 
 ### Targeting specific test / test file
 
- By setting some environment variables, it is possible to filtering which test and/or test file who will be tested with bats
+By setting some environment variables, it is possible to filtering which test and/or test file who will be tested with bats
 
 - `BATS_FILE_FILTER`
 
@@ -48,7 +48,7 @@ Under the hood, `pyenv` test suites use `bats` as a test framework and are run o
   - Run test only who corresponding to the filter provided
 
 
-### Examples
+#### Examples
 
 ```bash
     $ BATS_TEST_FILTER=".*installed.*" BATS_FILE_FILTER="build.bats" make test-plugin-docker-gnu-3.2.57
@@ -66,6 +66,25 @@ Under the hood, `pyenv` test suites use `bats` as a test framework and are run o
      ✓ homebrew is not used in Linux if Pyenv is not installed with Homebrew
     
     3 tests, 0 failures
+```
+
+
+
+## Passing another args to bats command
+
+By setting an environment variable, `BATS_EXTRA_ARGS`, it is possible to add arguments to the default `bats` command executed by the `make` target
+
+#### Examples
+
+```bash
+$ BATS_EXTRA_ARGS="-c" make test-plugin
+141
+$ BATS_EXTRA_ARGS="--no-tempdir-cleanup" make test-unit
+which.bats
+ ✓ outputs path to executable
+ ✓ searches PATH for system version
+...
+BATS_RUN_TMPDIR: /tmp/bats-run-dkRdX4
 ```
 
 

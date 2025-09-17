@@ -8,8 +8,8 @@ create_alias() {
 }
 
 _setup() {
-  mkdir -p "$PYENV_TEST_DIR"
-  cd "$PYENV_TEST_DIR"
+  mkdir -p "$BATS_TEST_TMPDIR"
+  cd "$BATS_TEST_TMPDIR"
 }
 
 @test "no versions installed" {
@@ -130,7 +130,7 @@ OUT
   assert_success
   assert_output <<OUT
   system
-* 3.3.3 (set by ${PYENV_TEST_DIR}/.python-version)
+* 3.3.3 (set by ${BATS_TEST_TMPDIR}/.python-version)
   3.4.0
 OUT
 }

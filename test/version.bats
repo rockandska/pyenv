@@ -4,7 +4,7 @@ load test_helper
 
 _setup() {
   mkdir -p "${PYENV_ROOT}"
-  cd "$PYENV_TEST_DIR"
+  cd "$BATS_TEST_TMPDIR"
 }
 
 @test "no version selected" {

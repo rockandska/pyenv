@@ -2,10 +2,6 @@
 
 load test_helper
 
-_setup() {
-  export PATH="${PYENV_TEST_DIR}/bin:$PATH"
-}
-
 @test "creates shims and versions directories" {
   assert [ ! -d "${PYENV_ROOT}/shims" ]
   assert [ ! -d "${PYENV_ROOT}/versions" ]
@@ -28,10 +24,9 @@ _setup() {
 }
 
 @test "setup shell completions" {
-  exec_root="$(cd $BATS_TEST_DIRNAME/.. && pwd)"
   run pyenv-init - bash
   assert_success
-  assert_line "source '${exec_root}/completions/pyenv.bash'"
+  assert_line "source '${PYENV_ROOT}/completions/pyenv.bash'"
 }
 
 @test "detect parent shell" {
@@ -41,8 +36,8 @@ _setup() {
 }
 
 @test "detect parent shell from script" {
-  mkdir -p "$PYENV_TEST_DIR"
-  cd "$PYENV_TEST_DIR"
+  mkdir -p "$HOME"
+  cd "$HOME"
   cat > myscript.sh <<OUT
 #!/bin/sh
 eval "\$(pyenv-init -)"
@@ -54,10 +49,9 @@ OUT
 }
 
 @test "setup shell completions (fish)" {
-  exec_root="$(cd $BATS_TEST_DIRNAME/.. && pwd)"
   run pyenv-init - fish
   assert_success
-  assert_line "source '${exec_root}/completions/pyenv.fish'"
+  assert_line "source '${PYENV_ROOT}/completions/pyenv.fish'"
 }
 
 @test "fish instructions" {
@@ -79,14 +73,14 @@ OUT
 }
 
 @test "adds shims to PATH" {
-  export PATH="${BATS_TEST_DIRNAME}/../libexec:/usr/bin:/bin:/usr/local/bin"
+  export PATH="${PYENV_ROOT}/libexec:/usr/bin:/bin:/usr/local/bin"
   run pyenv-init - bash
   assert_success
   assert_line 'export PATH="'${PYENV_ROOT}'/shims:${PATH}"'
 }
 
 @test "adds shims to PATH (fish)" {
-  export PATH="${BATS_TEST_DIRNAME}/../libexec:/usr/bin:/bin:/usr/local/bin"
+  export PATH="${PYENV_ROOT}/libexec:/usr/bin:/bin:/usr/local/bin"
   run pyenv-init - fish
   assert_success
   assert_line "set -gx PATH '${PYENV_ROOT}/shims' \$PATH"
@@ -94,30 +88,30 @@ OUT
 
 @test "removes existing shims from PATH" {
   OLDPATH="$PATH"
-  export PATH="${BATS_TEST_DIRNAME}/nonexistent:${PYENV_ROOT}/shims:$PATH"
+  export PATH="${PYENV_ROOT}/nonexistent:${PYENV_ROOT}/shims:$PATH"
   run bash -e <<!
 eval "\$(pyenv-init -)"
 echo "\$PATH"
 !
   assert_success
-  assert_output "${PYENV_ROOT}/shims:${BATS_TEST_DIRNAME}/nonexistent:${OLDPATH//${PYENV_ROOT}\/shims:/}"
+  assert_output "${PYENV_ROOT}/shims:${PYENV_ROOT}/nonexistent:${OLDPATH//${PYENV_ROOT}\/shims:/}"
 }
 
 @test "removes existing shims from PATH (fish)" {
   command -v fish >/dev/null || skip "-- fish not installed"
   OLDPATH="$PATH"
-  export PATH="${BATS_TEST_DIRNAME}/nonexistent:${PYENV_ROOT}/shims:$PATH"
+  export PATH="${PYENV_ROOT}/nonexistent:${PYENV_ROOT}/shims:$PATH"
   run fish <<!
 set -x PATH "$PATH"
 pyenv init - | source
 echo "\$PATH"
 !
   assert_success
-  assert_output "${PYENV_ROOT}/shims:${BATS_TEST_DIRNAME}/nonexistent:${OLDPATH//${PYENV_ROOT}\/shims:/}"
+  assert_output "${PYENV_ROOT}/shims:${PYENV_ROOT}/nonexistent:${OLDPATH//${PYENV_ROOT}\/shims:/}"
 }
 
 @test "adds shims to PATH with --no-push-path if they're not on PATH" {
-  export PATH="${BATS_TEST_DIRNAME}/../libexec:/usr/bin:/bin:/usr/local/bin"
+  export PATH="${PYENV_ROOT}/libexec:/usr/bin:/bin:/usr/local/bin"
   run bash -e <<!
 eval "\$(pyenv-init - --no-push-path)"
 echo "\$PATH"
@@ -128,7 +122,7 @@ echo "\$PATH"
 
 @test "adds shims to PATH with --no-push-path if they're not on PATH (fish)" {
   command -v fish >/dev/null || skip "-- fish not installed"
-  export PATH="${BATS_TEST_DIRNAME}/../libexec:/usr/bin:/bin:/usr/local/bin"
+  export PATH="${PYENV_ROOT}/libexec:/usr/bin:/bin:/usr/local/bin"
   run fish <<!
 set -x PATH "$PATH"
 pyenv-init - --no-push-path| source
@@ -139,7 +133,7 @@ echo "\$PATH"
 }
 
 @test "doesn't change PATH with --no-push-path if shims are already on PATH" {
-  export PATH="${BATS_TEST_DIRNAME}/../libexec:${PYENV_ROOT}/shims:/usr/bin:/bin:/usr/local/bin"
+  export PATH="${PYENV_ROOT}/libexec:${PYENV_ROOT}/shims:/usr/bin:/bin:/usr/local/bin"
   run bash -e <<!
 eval "\$(pyenv-init - --no-push-path)"
 echo "\$PATH"
@@ -150,7 +144,7 @@ echo "\$PATH"
 
 @test "doesn't change PATH with --no-push-path if shims are already on PATH (fish)" {
   command -v fish >/dev/null || skip "-- fish not installed"
-  export PATH="${BATS_TEST_DIRNAME}/../libexec:/usr/bin:${PYENV_ROOT}/shims:/bin:/usr/local/bin"
+  export PATH="${PYENV_ROOT}/libexec:/usr/bin:${PYENV_ROOT}/shims:/bin:/usr/local/bin"
   run fish <<!
 set -x PATH "$PATH"
 pyenv-init - --no-push-path| source

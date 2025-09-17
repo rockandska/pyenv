@@ -1,3 +1,6 @@
+SHELL := bash
+.SHELLFLAGS := -Eeu -o pipefail $(if $(DEBUG),-x) -c
+
 TEST_BATS_VERSION = v1.10.0
 TEST_BASH_VERSIONS = 3.2.57 4.1.17
 TEST_UNIT_DOCKER_PREFIX = test-unit-docker
@@ -30,11 +33,11 @@ $(TEST_UNIT_DOCKER_TARGETS): $(TEST_UNIT_DOCKER_PREFIX)-% : $(TEST_BATS_IMAGE_PR
 		-v /etc/group:/etc/group:ro \
 		-u "$$(id -u $$(whoami)):$$(id -g $$(whoami))" \
 		$${BATS_TEST_FILTER:+-e BATS_TEST_FILTER="$${BATS_TEST_FILTER}"} \
-		$${BATS_FILE_FILTER:+-e BATS_FILE_FILTER="$${BATS_FILE_FILTER}"} \
 	        $${CI+-e CI="$${CI}"} \
 	        $(INTERACTIVE) \
 		$(DOCKER_IMAGE):$(DOCKER_TAG) \
-		test/run
+		$${BATS_EXTRA_ARGS:-} \
+		bats $${BATS_TEST_FILTER:+--filter "$${BATS_TEST_FILTER}"} test/$${BATS_FILE_FILTER:-}
 
 # Run all plugin test under bats docker
 .PHONY: $(TEST_PLUGIN_DOCKER_PREFIX)
@@ -58,7 +61,10 @@ $(TEST_PLUGIN_DOCKER_TARGETS): $(TEST_PLUGIN_DOCKER_PREFIX)-% : $(TEST_BATS_IMAG
 	        $${CI+-e CI="$${CI}"} \
 	        $(INTERACTIVE) \
 		$(DOCKER_IMAGE):$(DOCKER_TAG) \
-		bats $${BATS_TEST_FILTER:+--filter "$${BATS_TEST_FILTER}"} plugins/python-build/test/$${BATS_FILE_FILTER}
+		bats \
+			$${BATS_TEST_FILTER:+--filter "$${BATS_TEST_FILTER}"} \
+			$${BATS_EXTRA_ARGS:-} \
+			plugins/python-build/test/$${BATS_FILE_FILTER:-}
 
 # Build all images needed for bats under docker
 .PHONY: $(TEST_BATS_IMAGE_PREFIX)
@@ -90,10 +96,28 @@ unexport PYTHON_CONFIGURE_OPTS
 test: test-unit test-plugin
 
 test-unit: bats
-	PATH="./bats/bin:$$PATH" test/run
-	
+	if [ -n "$${PYENV_NATIVE_EXT:-}" ]; \
+	then \
+		src/configure; \
+		make -C src; \
+	fi; \
+	./bats/bin/bats \
+		$${CI:+--tap} \
+		$${BATS_TEST_FILTER:+--filter "$${BATS_TEST_FILTER}"} \
+		$${BATS_EXTRA_ARGS:-} \
+		test/$${BATS_FILE_FILTER:-}
+
 test-plugin: bats
-	cd plugins/python-build && $(PWD)/bats/bin/bats $${CI:+--tap} $${BATS_TEST_FILTER:+--filter "$${BATS_TEST_FILTER}"} test/$${BATS_FILE_FILTER}
+	if [ -n "$${PYENV_NATIVE_EXT:-}" ]; \
+	then \
+		src/configure; \
+		make -C src; \
+	fi; \
+	./bats/bin/bats \
+		$${CI:+--tap} \
+		$${BATS_TEST_FILTER:+--filter "$${BATS_TEST_FILTER}"} \
+		$${BATS_EXTRA_ARGS:-} \
+		plugins/python-build/test/$${BATS_FILE_FILTER:-}
 
 PYTHON_BUILD_ROOT := $(CURDIR)/plugins/python-build
 PYTHON_BUILD_OPTS ?= --verbose

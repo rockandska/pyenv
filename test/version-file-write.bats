@@ -3,8 +3,8 @@
 load test_helper
 
 _setup() {
-  mkdir -p "${PYENV_TEST_DIR}"
-  cd "$PYENV_TEST_DIR"
+  mkdir -p "${BATS_TEST_TMPDIR}"
+  cd "$BATS_TEST_TMPDIR"
 }
 
 @test "invocation without 2 arguments prints usage" {

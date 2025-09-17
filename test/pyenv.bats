@@ -32,14 +32,14 @@ load test_helper
 }
 
 @test "inherited PYENV_DIR" {
-  dir="${BATS_TEST_TMPDIR}/myproject"
+  dir="${HOME}/myproject"
   mkdir -p "$dir"
   PYENV_DIR="$dir" run pyenv echo PYENV_DIR
   assert_output "$dir"
 }
 
 @test "invalid PYENV_DIR" {
-  dir="${BATS_TEST_TMPDIR}/does-not-exist"
+  dir="${HOME}/does-not-exist"
   assert [ ! -d "$dir" ]
   PYENV_DIR="$dir" run pyenv echo PYENV_DIR
   assert_failure
@@ -51,10 +51,13 @@ load test_helper
   mkdir -p "$PYENV_ROOT"/plugins/pyenv-each/bin
   run pyenv echo -F: "PATH"
   assert_success
-  assert_line 0 "${BATS_TEST_DIRNAME%/*}/libexec"
+  assert_line 0 "${PYENV_ROOT}/libexec"
   assert_line 1 "${PYENV_ROOT}/plugins/python-build/bin"
   assert_line 2 "${PYENV_ROOT}/plugins/pyenv-each/bin"
-  assert_line 3 "${BATS_TEST_DIRNAME%/*}/plugins/python-build/bin"
+  assert_line 3 "${HOME}/bin"
+  assert_line 4 "${PYENV_ROOT}/bin"
+  assert_line 5 "${PYENV_ROOT}/shims"
+  assert_line 6 "${PYENV_ROOT}/libexec"
 }
 
 @test "PYENV_HOOK_PATH preserves value from environment" {
@@ -68,5 +71,5 @@ load test_helper
 @test "PYENV_HOOK_PATH includes pyenv built-in plugins" {
   unset PYENV_HOOK_PATH
   run pyenv echo "PYENV_HOOK_PATH"
-  assert_success "${PYENV_ROOT}/pyenv.d:${BATS_TEST_DIRNAME%/*}/pyenv.d:/usr/etc/pyenv.d:/usr/local/etc/pyenv.d:/etc/pyenv.d:/usr/lib/pyenv/hooks"
+  assert_success "${PYENV_ROOT}/pyenv.d:/usr/etc/pyenv.d:/usr/local/etc/pyenv.d:/etc/pyenv.d:/usr/lib/pyenv/hooks"
 }

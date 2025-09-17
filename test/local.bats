@@ -3,8 +3,8 @@
 load test_helper
 
 _setup() {
-  mkdir -p "${PYENV_TEST_DIR}/myproject"
-  cd "${PYENV_TEST_DIR}/myproject"
+  mkdir -p "${BATS_TEST_TMPDIR}/myproject"
+  cd "${BATS_TEST_TMPDIR}/myproject"
 }
 
 @test "no version" {

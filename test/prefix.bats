@@ -3,8 +3,8 @@
 load test_helper
 
 @test "prefix" {
-  mkdir -p "${PYENV_TEST_DIR}/myproject"
-  cd "${PYENV_TEST_DIR}/myproject"
+  mkdir -p "${BATS_TEST_TMPDIR}/myproject"
+  cd "${BATS_TEST_TMPDIR}/myproject"
   echo "1.2.3" > .python-version
   mkdir -p "${PYENV_ROOT}/versions/1.2.3"
   run pyenv-prefix
@@ -17,32 +17,32 @@ load test_helper
 }
 
 @test "prefix for system" {
-  mkdir -p "${PYENV_TEST_DIR}/bin"
-  touch "${PYENV_TEST_DIR}/bin/python"
-  chmod +x "${PYENV_TEST_DIR}/bin/python"
-  PATH="${PYENV_TEST_DIR}/libexec:$PATH" PYENV_VERSION="system" run pyenv-prefix
-  assert_success "$PYENV_TEST_DIR"
+  mkdir -p "${BATS_TEST_TMPDIR}/bin"
+  touch "${BATS_TEST_TMPDIR}/bin/python"
+  chmod +x "${BATS_TEST_TMPDIR}/bin/python"
+  PATH="${BATS_TEST_TMPDIR}/libexec:$PATH" PYENV_VERSION="system" run pyenv-prefix
+  assert_success "$BATS_TEST_TMPDIR"
 }
 
 #Arch has Python at sbin as well as bin
 @test "prefix for system in sbin" {
-  mkdir -p "${PYENV_TEST_DIR}/sbin"
-  touch "${PYENV_TEST_DIR}/sbin/python"
-  chmod +x "${PYENV_TEST_DIR}/sbin/python"
-  PATH="${PYENV_TEST_DIR}/sbin:$PATH" PYENV_VERSION="system" run pyenv-prefix
-  assert_success "$PYENV_TEST_DIR"
+  mkdir -p "${BATS_TEST_TMPDIR}/sbin"
+  touch "${BATS_TEST_TMPDIR}/sbin/python"
+  chmod +x "${BATS_TEST_TMPDIR}/sbin/python"
+  PATH="${BATS_TEST_TMPDIR}/sbin:$PATH" PYENV_VERSION="system" run pyenv-prefix
+  assert_success "$BATS_TEST_TMPDIR"
 }
 
 @test "prefix for system in /" {
-  mkdir -p "${PYENV_TEST_DIR}/libexec"
-  cat >"${PYENV_TEST_DIR}/libexec/pyenv-which" <<OUT
+  mkdir -p "${BATS_TEST_TMPDIR}/libexec"
+  cat >"${BATS_TEST_TMPDIR}/libexec/pyenv-which" <<OUT
 #!/bin/sh
 echo /bin/python
 OUT
-  chmod +x "${PYENV_TEST_DIR}/libexec/pyenv-which"
-  PATH="${PYENV_TEST_DIR}/libexec:$PATH" PYENV_VERSION="system" run pyenv-prefix
+  chmod +x "${BATS_TEST_TMPDIR}/libexec/pyenv-which"
+  PATH="${BATS_TEST_TMPDIR}/libexec:$PATH" PYENV_VERSION="system" run pyenv-prefix
   assert_success "/"
-  rm -f "${PYENV_TEST_DIR}/libexec/pyenv-which"
+  rm -f "${BATS_TEST_TMPDIR}/libexec/pyenv-which"
 }
 
 @test "prefix for invalid system" {

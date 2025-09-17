@@ -20,7 +20,7 @@ load test_helper
 }
 
 @test "commands in path with spaces" {
-  path="${PYENV_TEST_DIR}/my commands"
+  path="${HOME}/my commands"
   cmd="${path}/pyenv-sh-hello"
   mkdir -p "$path"
   touch "$cmd"
