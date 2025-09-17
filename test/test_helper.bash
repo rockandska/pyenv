@@ -148,3 +148,58 @@ create_hook() {
     cat > "${PYENV_HOOK_PATH}/$1/$2"
   fi
 }
+
+create_exec_version() {
+  ###
+  # Create a binary in a version defined by the variable PYENV_VERSION
+  # $1 binary name
+  # $2-$* line of code to write to the file
+  # if there is no $2, stdin is used to read content
+  # Examples:
+  # PYENV_VERSION=2.7 create_exec_version "test" ""
+  # PYENV_VERSION=2.7 create_exec_version "test" "#!/bin/env bash" "echo test"
+  # PYENV_VERSION=2.7 create_exec_version "test" <<SH
+  # #!/bin/env bash
+  # echo test
+  # SH
+  ###
+
+  local name="${1?Missing executable name to create with 'create_exec_version'}"
+  : ${PYENV_VERSION?PYENV_VERSION not set in 'create_exec_version'}
+  shift 1
+  local bin="${PYENV_ROOT}/versions/${PYENV_VERSION}/bin"
+  mkdir -p "$bin"
+  { if [ $# -eq 0 ]; then cat -
+    else printf '%s\n' "$@"
+    fi
+  } | sed -Ee '1s/^ +//' > "${bin}/$name"
+  chmod +x "${bin}/$name"
+}
+
+create_exec() {
+  ###
+  # Create a binary in ${PYENV_TEST_DIR}/bin} by default
+  # Destination could be overwrite with DEST variable
+  # $1 binary name
+  # $2-$* line of code to write to the file
+  # if there is no $2, stdin is used to read content
+  # Examples:
+  # create_exec "test" ""
+  # DEST="${BATS_TEST_TMPDIR}/bin" create_exec "test" "#!/bin/env bash" "echo test"
+  # create_exec "test" <<SH
+  # #!/bin/env bash
+  # echo test
+  # SH
+  ###
+  local name="${1?Missing executable name to create with 'create_exec'}"
+  : ${DEST:=${PYENV_TEST_DIR}/bin}
+  shift 1
+  local bin="${DEST}"
+  unset DEST
+  mkdir -p "$bin"
+  { if [ $# -eq 0 ]; then cat -
+    else printf '%s\n' "$@"
+    fi
+  } | sed -Ee '1s/^ +//' > "${bin}/$name"
+  chmod +x "${bin}/$name"
+}

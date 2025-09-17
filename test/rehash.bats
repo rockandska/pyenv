@@ -2,13 +2,6 @@
 
 load test_helper
 
-create_executable() {
-  local bin="${PYENV_ROOT}/versions/${1}/bin"
-  mkdir -p "$bin"
-  touch "${bin}/$2"
-  chmod +x "${bin}/$2"
-}
-
 @test "empty rehash" {
   assert [ ! -d "${PYENV_ROOT}/shims" ]
   run pyenv-rehash
@@ -42,10 +35,10 @@ create_executable() {
 }
 
 @test "creates shims" {
-  create_executable "2.7" "python"
-  create_executable "2.7" "fab"
-  create_executable "3.4" "python"
-  create_executable "3.4" "py.test"
+  PYENV_VERSION=2.7 create_exec_version "python" ""
+  PYENV_VERSION=2.7 create_exec_version "fab" ""
+  PYENV_VERSION=3.4 create_exec_version "python" ""
+  PYENV_VERSION=3.4 create_exec_version "py.test" ""
 
   assert [ ! -e "${PYENV_ROOT}/shims/fab" ]
   assert [ ! -e "${PYENV_ROOT}/shims/python" ]
@@ -68,8 +61,8 @@ OUT
   touch "${PYENV_ROOT}/shims/oldshim1"
   chmod +x "${PYENV_ROOT}/shims/oldshim1"
 
-  create_executable "3.4" "fab"
-  create_executable "3.4" "python"
+  PYENV_VERSION=3.4 create_exec_version "fab" ""
+  PYENV_VERSION=3.4 create_exec_version "python" ""
 
   run pyenv-rehash
   assert_success ""
@@ -78,8 +71,8 @@ OUT
 }
 
 @test "binary install locations containing spaces" {
-  create_executable "dirname1 p247" "python"
-  create_executable "dirname2 preview1" "py.test"
+  PYENV_VERSION="dirname1 p247" create_exec_version "python" ""
+  PYENV_VERSION="dirname2 preview1" create_exec_version "py.test" ""
 
   assert [ ! -e "${PYENV_ROOT}/shims/python" ]
   assert [ ! -e "${PYENV_ROOT}/shims/py.test" ]
@@ -108,14 +101,14 @@ SH
 }
 
 @test "sh-rehash in bash" {
-  create_executable "3.4" "python"
+  PYENV_VERSION=3.4 create_exec_version "python" ""
   PYENV_SHELL=bash run pyenv-sh-rehash
   assert_success "hash -r 2>/dev/null || true"
   assert [ -x "${PYENV_ROOT}/shims/python" ]
 }
 
 @test "sh-rehash in fish" {
-  create_executable "3.4" "python"
+  PYENV_VERSION=3.4 create_exec_version "python" ""
   PYENV_SHELL=fish run pyenv-sh-rehash
   assert_success ""
   assert [ -x "${PYENV_ROOT}/shims/python" ]

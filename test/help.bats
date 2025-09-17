@@ -15,8 +15,7 @@ load test_helper
 }
 
 @test "shows help for a specific command" {
-  mkdir -p "${PYENV_TEST_DIR}/bin"
-  cat > "${PYENV_TEST_DIR}/bin/pyenv-hello" <<SH
+  create_exec "pyenv-hello" <<SH
 #!shebang
 # Usage: pyenv hello <world>
 # Summary: Says "hello" to you, from pyenv
@@ -34,8 +33,7 @@ SH
 }
 
 @test "replaces missing extended help with summary text" {
-  mkdir -p "${PYENV_TEST_DIR}/bin"
-  cat > "${PYENV_TEST_DIR}/bin/pyenv-hello" <<SH
+  create_exec "pyenv-hello" <<SH
 #!shebang
 # Usage: pyenv hello <world>
 # Summary: Says "hello" to you, from pyenv
@@ -52,8 +50,7 @@ SH
 }
 
 @test "extracts only usage" {
-  mkdir -p "${PYENV_TEST_DIR}/bin"
-  cat > "${PYENV_TEST_DIR}/bin/pyenv-hello" <<SH
+  create_exec "pyenv-hello" <<SH
 #!shebang
 # Usage: pyenv hello <world>
 # Summary: Says "hello" to you, from pyenv
@@ -66,8 +63,7 @@ SH
 }
 
 @test "multiline usage section" {
-  mkdir -p "${PYENV_TEST_DIR}/bin"
-  cat > "${PYENV_TEST_DIR}/bin/pyenv-hello" <<SH
+  create_exec "pyenv-hello" <<SH
 #!shebang
 # Usage: pyenv hello <world>
 #        pyenv hi [everybody]
@@ -89,8 +85,7 @@ SH
 }
 
 @test "multiline extended help section" {
-  mkdir -p "${PYENV_TEST_DIR}/bin"
-  cat > "${PYENV_TEST_DIR}/bin/pyenv-hello" <<SH
+  create_exec "pyenv-hello" <<SH
 #!shebang
 # Usage: pyenv hello <world>
 # Summary: Says "hello" to you, from pyenv

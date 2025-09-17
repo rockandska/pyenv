@@ -2,10 +2,6 @@
 
 load test_helper
 
-create_version() {
-  mkdir -p "${PYENV_ROOT}/versions/$1"
-}
-
 create_alias() {
   mkdir -p "${PYENV_ROOT}/versions"
   ln -s "$2" "${PYENV_ROOT}/versions/$1"
@@ -16,22 +12,8 @@ _setup() {
   cd "$PYENV_TEST_DIR"
 }
 
-stub_system_python() {
-  local stub="${PYENV_TEST_DIR}/bin/python"
-  mkdir -p "$(dirname "$stub")"
-  touch "$stub" && chmod +x "$stub"
-}
-
-create_executable() {
-  local name="$1"
-  local bin="${PYENV_TEST_DIR}/bin"
-  mkdir -p "$bin"
-  sed -Ee '1s/^ +//' > "${bin}/$name"
-  chmod +x "${bin}/$name"
-}
-
 @test "no versions installed" {
-  stub_system_python
+  create_exec python ""
   assert [ ! -d "${PYENV_ROOT}/versions" ]
   run pyenv-versions
   assert_success "* system (set by ${PYENV_ROOT}/version)"
@@ -50,8 +32,8 @@ create_executable() {
 }
 
 @test "single version installed" {
-  stub_system_python
-  create_version "3.3"
+  create_exec python ""
+  PYENV_VERSION=3.3 create_exec_version "python" ""
   run pyenv-versions
   assert_success
   assert_output <<OUT
@@ -61,18 +43,18 @@ OUT
 }
 
 @test "single version bare" {
-  create_version "3.3"
+  PYENV_VERSION=3.3 create_exec_version "python" ""
   run pyenv-versions --bare
   assert_success "3.3"
 }
 
 @test "multiple versions and envs" {
-  stub_system_python
-  create_version "2.7.6"
-  create_version "3.4.0"
-  create_version "3.4.0/envs/foo"
-  create_version "3.4.0/envs/bar"
-  create_version "3.5.2"
+  create_exec python ""
+  PYENV_VERSION="2.7.6" create_exec_version "python" ""
+  PYENV_VERSION="3.4.0" create_exec_version "python" ""
+  PYENV_VERSION="3.4.0/envs/foo" create_exec_version "python" ""
+  PYENV_VERSION="3.4.0/envs/bar" create_exec_version "python" ""
+  PYENV_VERSION="3.5.2" create_exec_version "python" ""
   run pyenv-versions
   assert_success
   assert_output <<OUT
@@ -86,11 +68,11 @@ OUT
 }
 
 @test "skips envs with --skip-envs" {
-  create_version "3.3.3"
-  create_version "3.4.0"
-  create_version "3.4.0/envs/foo"
-  create_version "3.4.0/envs/bar"
-  create_version "3.5.0"
+  PYENV_VERSION="3.3.3" create_exec_version "python" ""
+  PYENV_VERSION="3.4.0" create_exec_version "python" ""
+  PYENV_VERSION="3.4.0/envs/foo" create_exec_version "python" ""
+  PYENV_VERSION="3.4.0/envs/bar" create_exec_version "python" ""
+  PYENV_VERSION="3.5.0" create_exec_version "python" ""
 
   run pyenv-versions --skip-envs
     assert_success <<OUT
@@ -102,9 +84,9 @@ OUT
 }
 
 @test "indicates current version" {
-  stub_system_python
-  create_version "3.3.3"
-  create_version "3.4.0"
+  create_exec python ""
+  PYENV_VERSION="3.3.3" create_exec_version "python" ""
+  PYENV_VERSION="3.4.0" create_exec_version "python" ""
   PYENV_VERSION=3.3.3 run pyenv-versions
   assert_success
   assert_output <<OUT
@@ -115,8 +97,8 @@ OUT
 }
 
 @test "bare doesn't indicate current version" {
-  create_version "3.3.3"
-  create_version "3.4.0"
+  PYENV_VERSION="3.3.3" create_exec_version "python" ""
+  PYENV_VERSION="3.4.0" create_exec_version "python" ""
   PYENV_VERSION=3.3.3 run pyenv-versions --bare
   assert_success
   assert_output <<OUT
@@ -126,9 +108,9 @@ OUT
 }
 
 @test "globally selected version" {
-  stub_system_python
-  create_version "3.3.3"
-  create_version "3.4.0"
+  create_exec python ""
+  PYENV_VERSION="3.3.3" create_exec_version "python" ""
+  PYENV_VERSION="3.4.0" create_exec_version "python" ""
   cat > "${PYENV_ROOT}/version" <<<"3.3.3"
   run pyenv-versions
   assert_success
@@ -140,9 +122,9 @@ OUT
 }
 
 @test "per-project version" {
-  stub_system_python
-  create_version "3.3.3"
-  create_version "3.4.0"
+  create_exec python ""
+  PYENV_VERSION="3.3.3" create_exec_version "python" ""
+  PYENV_VERSION="3.4.0" create_exec_version "python" ""
   cat > ".python-version" <<<"3.3.3"
   run pyenv-versions
   assert_success
@@ -154,7 +136,7 @@ OUT
 }
 
 @test "ignores non-directories under versions" {
-  create_version "3.3"
+  PYENV_VERSION="3.3" create_exec_version "python" ""
   touch "${PYENV_ROOT}/versions/hello"
 
   run pyenv-versions --bare
@@ -162,7 +144,7 @@ OUT
 }
 
 @test "lists symlinks under versions" {
-  create_version "2.7.8"
+  PYENV_VERSION="2.7.8" create_exec_version "python" ""
   create_alias "2.7" "2.7.8"
 
   run pyenv-versions --bare
@@ -174,7 +156,7 @@ OUT
 }
 
 @test "doesn't list symlink aliases when --skip-aliases" {
-  create_version "1.8.7"
+  PYENV_VERSION="1.8.7" create_exec_version "python" ""
   create_alias "1.8" "1.8.7"
   mkdir moo
   create_alias "1.9" "${PWD}/moo"
@@ -189,17 +171,17 @@ OUT
 }
 
 @test "lists dot directories under versions" {
-  create_version ".venv"
+  PYENV_VERSION=".venv" create_exec_version "python" ""
 
   run pyenv-versions --bare
   assert_success ".venv"
 }
 
 @test "sort supports version sorting" {
-  create_version "1.9.0"
-  create_version "1.53.0"
-  create_version "1.218.0"
-  create_executable sort <<SH
+  PYENV_VERSION="1.9.0" create_exec_version "python" ""
+  PYENV_VERSION="1.53.0" create_exec_version "python" ""
+  PYENV_VERSION="1.218.0" create_exec_version "python" ""
+  create_exec sort <<SH
 #!$BASH
 cat >/dev/null
 if [ "\$1" == "--version-sort" ]; then
@@ -220,10 +202,10 @@ OUT
 }
 
 @test "sort doesn't support version sorting" {
-  create_version "1.9.0"
-  create_version "1.53.0"
-  create_version "1.218.0"
-  create_executable sort <<SH
+  PYENV_VERSION="1.9.0" create_exec_version "python" ""
+  PYENV_VERSION="1.53.0" create_exec_version "python" ""
+  PYENV_VERSION="1.218.0" create_exec_version "python" ""
+  create_exec sort <<SH
 #!$BASH
 exit 1
 SH
@@ -238,8 +220,8 @@ OUT
 }
 
 @test "non-bare output shows symlink contents" {
-  stub_system_python
-  create_version "1.9.0"
+  create_exec python ""
+  PYENV_VERSION="1.9.0" create_exec_version "python" ""
   create_alias "link" "1.9.0"
 
   run pyenv-versions

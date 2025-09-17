@@ -2,18 +2,6 @@
 
 load test_helper
 
-create_executable() {
-  name="${1?}"
-  shift 1
-  bin="${PYENV_ROOT}/versions/${PYENV_VERSION}/bin"
-  mkdir -p "$bin"
-  { if [ $# -eq 0 ]; then cat -
-    else printf '%s\n' "$@"
-    fi
-  } | sed -Ee '1s/^ +//' > "${bin}/$name"
-  chmod +x "${bin}/$name"
-}
-
 @test "fails with invalid version" {
   bats_require_minimum_version 1.5.0
   export PYENV_VERSION="3.4"
@@ -37,9 +25,8 @@ EOF
 }
 
 @test "completes with names of executables" {
-  export PYENV_VERSION="3.4"
-  create_executable "fab" "#!/bin/sh"
-  create_executable "python" "#!/bin/sh"
+  PYENV_VERSION=3.4 create_exec_version "fab" "#!/bin/sh"
+  PYENV_VERSION=3.4 create_exec_version "python" "#!/bin/sh"
 
   pyenv-rehash
   run pyenv-completions exec
@@ -65,7 +52,7 @@ SH
 
 @test "forwards all arguments" {
   export PYENV_VERSION="3.4"
-  create_executable "python" <<SH
+  create_exec_version "python" <<SH
 #!$BASH
 echo \$0
 for arg; do
@@ -88,7 +75,7 @@ OUT
 
 @test "sys.executable with system version (#98)" {
   export PATH="${PYENV_ROOT}/versions/bin:${PATH}"
-  create_executable "python3" <<SH
+  create_exec "python3" <<SH
 #!$BASH
 echo system
 SH
@@ -96,7 +83,7 @@ SH
   assert_equal "${system_python}" "system"
 
   export PYENV_VERSION="custom"
-  create_executable "python3" "#!/bin/sh" "echo custom"
+  create_exec_version "python3" "#!/bin/sh" "echo custom"
 
   pyenv-rehash
 
@@ -108,7 +95,7 @@ SH
   export PATH="${PYENV_TEST_DIR}:${PATH}"
   # Create a wrapper executable that verifies PATH.
   PYENV_VERSION="custom"
-  create_executable "python3" '[[ "$PATH" == "${PYENV_TEST_DIR}/root/versions/custom/bin:"* ]] || { echo "unexpected:$PATH"; exit 2;}'
+  create_exec "python3" '[[ "$PATH" == "${PYENV_TEST_DIR}/root/versions/custom/bin:"* ]] || { echo "unexpected:$PATH"; exit 2;}'
   unset PYENV_VERSION
   pyenv-rehash
 

@@ -2,10 +2,6 @@
 
 load test_helper
 
-create_version() {
-  mkdir -p "${PYENV_ROOT}/versions/$1"
-}
-
 _setup() {
   mkdir -p "${PYENV_TEST_DIR}"
   cd "$PYENV_TEST_DIR"
@@ -23,8 +19,8 @@ _setup() {
 }
 
 @test "PYENV_VERSION can be overridden by hook" {
-  create_version "2.7.11"
-  create_version "3.5.1"
+  PYENV_VERSION="2.7.11" create_exec_version "python" ""
+  PYENV_VERSION="3.5.1" create_exec_version "python" ""
   create_hook version-name test.bash <<<"PYENV_VERSION=3.5.1"
 
   PYENV_VERSION=2.7.11 run pyenv-version-name
@@ -44,8 +40,8 @@ SH
 }
 
 @test "PYENV_VERSION has precedence over local" {
-  create_version "2.7.11"
-  create_version "3.5.1"
+  PYENV_VERSION="2.7.11" create_exec_version "python" ""
+  PYENV_VERSION="3.5.1" create_exec_version "python" ""
 
   cat > ".python-version" <<<"2.7.11"
   run pyenv-version-name
@@ -56,8 +52,8 @@ SH
 }
 
 @test "local file has precedence over global" {
-  create_version "2.7.11"
-  create_version "3.5.1"
+  PYENV_VERSION="2.7.11" create_exec_version "python" ""
+  PYENV_VERSION="3.5.1" create_exec_version "python" ""
 
   cat > "${PYENV_ROOT}/version" <<<"2.7.11"
   run pyenv-version-name
@@ -79,7 +75,7 @@ SH
 }
 
 @test "one missing version (second missing)" {
-  create_version "3.5.1"
+  PYENV_VERSION="3.5.1" create_exec_version "python" ""
   PYENV_VERSION="3.5.1:1.2" run pyenv-version-name
   assert_failure
   assert_output <<OUT
@@ -89,7 +85,7 @@ OUT
 }
 
 @test "one missing version (first missing)" {
-  create_version "3.5.1"
+  PYENV_VERSION="3.5.1" create_exec_version "python" ""
   PYENV_VERSION="1.2:3.5.1" run pyenv-version-name
   assert_failure
   assert_output <<OUT
@@ -103,7 +99,7 @@ pyenv-version-name-without-stderr() {
 }
 
 @test "one missing version (without stderr)" {
-  create_version "3.5.1"
+  PYENV_VERSION="3.5.1" create_exec_version "python" ""
   PYENV_VERSION="1.2:3.5.1" run pyenv-version-name-without-stderr
   assert_failure
   assert_output <<OUT
@@ -112,7 +108,7 @@ OUT
 }
 
 @test "version with prefix in name" {
-  create_version "2.7.11"
+  PYENV_VERSION="2.7.11" create_exec_version "python" ""
   cat > ".python-version" <<<"python-2.7.11"
   run pyenv-version-name
   assert_success
@@ -120,21 +116,21 @@ OUT
 }
 
 @test "falls back to pyenv-latest" {
-  create_version "2.7.11"
+  PYENV_VERSION="2.7.11" create_exec_version "python" ""
   PYENV_VERSION="2.7" run pyenv-version-name
   assert_success
   assert_output "2.7.11"
 }
 
 @test "pyenv-latest fallback with prefix in name" {
-  create_version "3.12.6"
+  PYENV_VERSION="3.12.6" create_exec_version "python" ""
   PYENV_VERSION="python-3.12" run pyenv-version-name
   assert_success
   assert_output "3.12.6"
 }
 
 @test "pyenv version started by python-" {
-  create_version "python-3.12.6"
+  PYENV_VERSION="python-3.12.6" create_exec_version "python" ""
   PYENV_VERSION="python-3.12.6" run pyenv-version-name
   assert_success
   assert_output "python-3.12.6"

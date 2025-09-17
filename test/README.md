@@ -2,6 +2,8 @@
 
 ---
 
+[TOC]
+
 ## Running test suite
 
 Test suite could be launch with `make` by providing the right target depending what you want to achieve.
@@ -34,7 +36,7 @@ Under the hood, `pyenv` test suites use `bats` as a test framework and are run o
   - Run the plugin test under **official** bash docker container (alpine/busybox), completed by **GNU Tools**, with the specified bash version if present is in the `Makefile`
   - Some volumes are used in read-only mode
 
-## Targeting specific test / test file
+### Targeting specific test / test file
 
  By setting some environment variables, it is possible to filtering which test and/or test file who will be tested with bats
 
@@ -70,7 +72,25 @@ Under the hood, `pyenv` test suites use `bats` as a test framework and are run o
 
 ## Writing test
 
+### Introduction
+
 To be reproducible, each test use/should use its own `TMPDIR` .  
-It's achieved by using the environment variable `BATS_TEST_TMPDIR` provided by bats that is automatically deleted at the end of each test. More info [here](https://bats-core.readthedocs.io/en/stable/writing-tests.html#special-variables)
+It's achieved by using the environment variable `BATS_TEST_TMPDIR` provided by bats that is automatically deleted at the end of each test (but could be preserve for debugging purpose by providing `--no-tempdir-cleanup` to bats. More info [here](https://bats-core.readthedocs.io/en/stable/writing-tests.html#special-variables)
 
 Another variable who could be used to source some file who need to be tested is `BATS_TEST_DIRNAME` who point to the directory in which the bats test file is located.
+
+### Test helper
+
+By default, all test spec should `load test_helper`
+
+`test_helper`have different purpose :
+
+- create a global `setup`who :
+  - add needed path for test
+  - load specific test file `_setup` function if present
+- create some useful functions like :
+  - `create_exec`
+    - useful to create executable with specific code (see example in the function itself)
+  - `create_exec_version`
+    - useful to create executable with specific code in a specified python version managed by pyenv (see example in the function itself)
+  - ...
